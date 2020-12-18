@@ -58,14 +58,16 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Monster.cs" />
     <Compile Include="Assets\Scripts\ITakeDamage.cs" />
+    <Compile Include="Assets\Scripts\SpawnTrigger.cs" />
     <Compile Include="Assets\Scripts\CameraSwitching.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Door.cs" />
     <Compile Include="Assets\Scripts\Bullet.cs" />
-    <Compile Include="Assets\Scripts\Button.cs" />
-    <Compile Include="Assets\Scripts\MonsterSpawner.cs" />
-    <Compile Include="Assets\Scripts\SpawnTrigger.cs" />
     <Compile Include="Assets\Scripts\FirstAid.cs" />
+    <Compile Include="Assets\Scripts\MonsterSpawner.cs" />
+    <Compile Include="Assets\Scripts\Button.cs" />
+    <Compile Include="Assets\Scripts\PickUpObject.cs" />
+    <Compile Include="Assets\Scripts\Checkpoint.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\LogicBlox\Prefabs\ModelsOnly\Free Models only.txt" />

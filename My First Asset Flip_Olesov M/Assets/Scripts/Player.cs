@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour, ITakeDamage
 {
@@ -18,14 +19,25 @@ public class Player : MonoBehaviour, ITakeDamage
 
     private float fireCoolDown = 0;
 
+    private List<object> inventory = new List<object>();
+
+    private Transform respawnPosition = null;
+    private bool checkpointSet = false;
+
+    private GameObject[] pickups;
+    private GameObject[] spawns;
+
     Animator m_Animator;
     Rigidbody m_Rigidbody;
     Vector3 m_Movement;
+    Vector3 m_SideMovement;
 
     void Start()
     {
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
+        pickups = GameObject.FindGameObjectsWithTag("Pickup");
+        spawns = GameObject.FindGameObjectsWithTag("MonsterSpawner");
     }
 
 
@@ -33,12 +45,16 @@ public class Player : MonoBehaviour, ITakeDamage
     {
         var ver = Input.GetAxis("Vertical");
         var hor = Input.GetAxis("Horizontal");
+        var stre = Input.GetAxis("Streif");
         m_Movement = transform.forward;
+        m_SideMovement = transform.right;
 
         bool isWalkingForward = false;
         bool isRunningForward = false;
         bool isWalkingBack = false;
         bool isShooting = false;
+        bool isWalkingRight = false;
+        bool isWalkingLeft = false;
 
         if (Input.GetAxis("Fire1") > 0)
         {
@@ -56,13 +72,6 @@ public class Player : MonoBehaviour, ITakeDamage
 
         if (ver !=0)
         {
-            //m_Movement.Set(ver, 0f, 0f);
-            //m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * m_Animator.deltaPosition.magnitude);
-            //transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z * ver * speed * Time.deltaTime);
-            //transform.Translate(transform.forward * ver * speed * Time.deltaTime, Space.World);
-            //transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
-            //transform.Translate(m_Movement * speed * Time.deltaTime, Space.Self);
-            //Vector3 desiredForward = transform.forward;
             if (Input.GetAxis("Fire2") > 0 && ver > 0 && !isShooting)
             {
                 m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed * 2.5f * Time.deltaTime);
@@ -75,14 +84,17 @@ public class Player : MonoBehaviour, ITakeDamage
                 isWalkingBack = (ver < 0);
             }
         }
-        /*if (ver < 0)
+        if (stre != 0)
         {
-            //transform.Translate(transform.forward * ver * speed / 2 * Time.deltaTime, Space.World);
-            m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed / 2 * Time.deltaTime);
-        }*/
+            m_Rigidbody.MovePosition(m_Rigidbody.position + m_SideMovement * stre * speed / 2 * Time.deltaTime);
+            if (ver == 0)
+            {
+                isWalkingRight = (stre > 0);
+                isWalkingLeft = (stre < 0);
+            }
+        }
         if (hor != 0)
         {
-            //transform.RotateAround(transform.position, Vector3.up, hor * turnSpeed * Time.deltaTime);
             transform.eulerAngles = new Vector3(0, transform.eulerAngles.y + hor * turnSpeed * Time.deltaTime, 0);
         }
 
@@ -90,8 +102,9 @@ public class Player : MonoBehaviour, ITakeDamage
         m_Animator.SetBool("IsRunningForward", isRunningForward);
         m_Animator.SetBool("IsWalkingBack", isWalkingBack);
         m_Animator.SetBool("IsShooting", isShooting);
+        m_Animator.SetBool("IsWalkingRight", isWalkingRight);
+        m_Animator.SetBool("IsWalkingLeft", isWalkingLeft);
 
-        
 
     }
 
@@ -104,7 +117,22 @@ public class Player : MonoBehaviour, ITakeDamage
 
     private void Death()
     {
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+        if (checkpointSet)
+        {
+            m_Rigidbody.position = respawnPosition.position;
+            m_Rigidbody.rotation = respawnPosition.rotation;
+            hp = maxHp;
+            foreach (GameObject s in spawns)
+                s.SetActive(true);
+            foreach (GameObject p in pickups)
+                p.SetActive(true);
+            GameObject[] monsters = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (GameObject m in monsters)
+                Destroy(m.gameObject);
+        }
+        else
+            SceneManager.LoadScene(0);
     }
 
     public bool GetHealth(int heal)
@@ -118,5 +146,24 @@ public class Player : MonoBehaviour, ITakeDamage
                 hp = maxHp;
             return true;
         }
+    }
+
+    public void AddToInventory(GameObject obj)
+    {
+        inventory.Add(obj);
+    }
+
+    public bool FindInInventory(string tag)
+    {
+        foreach (GameObject obj in inventory)
+            if (obj.CompareTag(tag))
+                return true;
+        return false;
+    }
+
+    public void SetSpawn(Transform chkPoint)
+    {
+        respawnPosition = chkPoint;
+        checkpointSet = true;
     }
 }

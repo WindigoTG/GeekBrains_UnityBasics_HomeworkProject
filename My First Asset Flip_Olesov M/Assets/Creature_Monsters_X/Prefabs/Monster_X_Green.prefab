@@ -1433,6 +1433,8 @@ GameObject:
   - component: {fileID: -8203009930377363473}
   - component: {fileID: -6264917615339351758}
   - component: {fileID: 280555718172571100}
+  - component: {fileID: -2257369310558398761}
+  - component: {fileID: -1512080918851245677}
   m_Layer: 0
   m_Name: Monster_X_Green
   m_TagString: Enemy
@@ -1542,8 +1544,8 @@ CapsuleCollider:
   m_GameObject: {fileID: 100066}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 60
+  m_Enabled: 0
+  m_Radius: 70
   m_Height: 42
   m_Direction: 1
   m_Center: {x: 0, y: 21, z: 0}
@@ -1556,8 +1558,34 @@ CapsuleCollider:
   m_GameObject: {fileID: 100066}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 40
+  m_Enabled: 0
+  m_Radius: 80
   m_Height: 160
   m_Direction: 2
-  m_Center: {x: 0, y: 21, z: 80}
+  m_Center: {x: 0, y: 21, z: 120}
+--- !u!65 &-2257369310558398761
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 140, y: 10, z: 140}
+  m_Center: {x: 0, y: 25, z: 0}
+--- !u!65 &-1512080918851245677
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 160, y: 10, z: 160}
+  m_Center: {x: 0, y: 25, z: 120}

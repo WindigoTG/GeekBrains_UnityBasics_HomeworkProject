@@ -1433,6 +1433,8 @@ GameObject:
   - component: {fileID: 8873393835641071178}
   - component: {fileID: 5350041372205344961}
   - component: {fileID: -509220094254454585}
+  - component: {fileID: -725808917222678386}
+  - component: {fileID: 1918090987670940479}
   m_Layer: 0
   m_Name: Monster_X_Purple
   m_TagString: Enemy
@@ -1504,10 +1506,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70c7901094c4bc4438e6c5a4ef764bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1.75
-  chaseSpeed: 5
+  speed: 2
+  chaseSpeed: 6
   turnSpeed: 20
-  hp: 100
+  hp: 130
   damage: 15
   waypoints: []
   navMeshAgent: {fileID: 8873393835641071178}
@@ -1542,8 +1544,8 @@ CapsuleCollider:
   m_GameObject: {fileID: 100066}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 60
+  m_Enabled: 0
+  m_Radius: 80
   m_Height: 42
   m_Direction: 1
   m_Center: {x: 0, y: 21, z: 0}
@@ -1556,8 +1558,34 @@ CapsuleCollider:
   m_GameObject: {fileID: 100066}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 40
+  m_Enabled: 0
+  m_Radius: 100
   m_Height: 160
   m_Direction: 2
-  m_Center: {x: 0, y: 21, z: 80}
+  m_Center: {x: 0, y: 21, z: 150}
+--- !u!65 &-725808917222678386
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 160, y: 10, z: 160}
+  m_Center: {x: 0, y: 25, z: 0}
+--- !u!65 &1918090987670940479
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100066}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 200, y: 10, z: 200}
+  m_Center: {x: 0, y: 25, z: 150}

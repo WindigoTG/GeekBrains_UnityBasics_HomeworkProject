@@ -12,9 +12,11 @@ GameObject:
   - component: {fileID: 6539283932497814295}
   - component: {fileID: 719658381907353582}
   - component: {fileID: 6527879495042163959}
+  - component: {fileID: -2006436570556161754}
+  - component: {fileID: 8146082400011645151}
   m_Layer: 0
   m_Name: FirstAidKit_Red
-  m_TagString: Untagged
+  m_TagString: Pickup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,3 +97,31 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.9540792, y: 2.5032947, z: 0.4149846}
   m_Center: {x: 0, y: 1.2310425, z: 0.20749219}
+--- !u!136 &-2006436570556161754
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279140426991430450}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 2
+  m_Height: 2.5032947
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.2310425, z: 0.20749219}
+--- !u!114 &8146082400011645151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279140426991430450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82fcd94c567f1a5459f1fbc8c82989d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healingAmmount: 50
+  turnSpeed: 100

@@ -29,6 +29,8 @@ public class Monster : MonoBehaviour
     bool isAlert = false;
     bool isAlive = true;
 
+    bool playerInRange;
+
     Animator m_Animator;
 
     public void Init(Transform[] waypoints)
@@ -47,46 +49,73 @@ public class Monster : MonoBehaviour
 
     void Update()
     {
-        //m_Animator.SetBool("IsWalking", true);
-        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance && !isAlert)
+        if (isAlive)
         {
-            m_CurrentWaypointIndex = (m_CurrentWaypointIndex + 1) % waypoints.Length;
-            navMeshAgent.SetDestination(waypoints[m_CurrentWaypointIndex].position);
-        }
-        if (isAlert)
-        {
-            navMeshAgent.SetDestination(player.transform.position);
-            if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance && currentCoolDown <= 0)
+            if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance && !isAlert)
             {
-                m_Animator.SetBool("IsWalking", false);
-                m_Animator.SetBool("IsRunning", true);
-                navMeshAgent.speed = chaseSpeed;
+                m_CurrentWaypointIndex = (m_CurrentWaypointIndex + 1) % waypoints.Length;
+                navMeshAgent.SetDestination(waypoints[m_CurrentWaypointIndex].position);
             }
-            if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance)
+            if (!isAlert && playerInRange)
             {
-                m_Animator.SetBool("IsWalking", false);
-                m_Animator.SetBool("IsRunning", false);
-                navMeshAgent.speed = 0;
-                if (currentCoolDown <= 0)
+                Vector3 direction = (player.transform.position + new Vector3(0,2,0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
+
+                Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
+                RaycastHit raycastHit;
+
+                if (Physics.Raycast(ray, out raycastHit))
                 {
-                    m_Animator.SetTrigger("Attack");
-                    isAttacking = true;
-                    currentCoolDown = attackCoolDown;
+                    if (raycastHit.collider.gameObject == player)
+                    {
+                        isAlert = true;
+                    }
                 }
             }
-        }
-        if (currentCoolDown > 0)
-            currentCoolDown -= Time.deltaTime;
-        if (isAttacking)
-        {
-            timeToHit += Time.deltaTime;
-            if (timeToHit >= attackHitIn)
+            if (isAlert)
             {
-                //Если игрок находится на определенном расстоянии от монстра, когда атака считается нанесённой, игрок получает урон
-                if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance)
-                    player.GetComponent<Player>().TakeDamage(damage);
-                timeToHit = 0;
-                isAttacking = false;
+                navMeshAgent.SetDestination(player.transform.position);
+                if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance && currentCoolDown <= 0)
+                {
+                    m_Animator.SetBool("IsWalking", false);
+                    m_Animator.SetBool("IsRunning", true);
+                    navMeshAgent.speed = chaseSpeed;
+                }
+                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+                {
+                    m_Animator.SetBool("IsWalking", false);
+                    m_Animator.SetBool("IsRunning", false);
+                    navMeshAgent.speed = 0;
+                    if (currentCoolDown <= 0)
+                    {
+                        m_Animator.SetTrigger("Attack");
+                        isAttacking = true;
+                        currentCoolDown = attackCoolDown;
+                    }
+                }
+            }
+            if (currentCoolDown > 0)
+                currentCoolDown -= Time.deltaTime;
+            if (isAttacking)
+            {
+                timeToHit += Time.deltaTime;
+                if (timeToHit >= attackHitIn)
+                {
+                    Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
+                    Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
+                    RaycastHit raycastHit;
+
+                    if (Physics.Raycast(ray, out raycastHit))
+                    {
+                        //Если игрок находится на определенном расстоянии от монстра, когда атака считается нанесённой, игрок получает урон
+                        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance && raycastHit.collider.gameObject == player)
+                        {
+                            player.GetComponent<Player>().TakeDamage(damage);
+                        }
+                    }
+
+                    timeToHit = 0;
+                    isAttacking = false;
+                }
             }
         }
         if (!isAlive)
@@ -100,10 +129,20 @@ public class Monster : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (other.gameObject == player)
-            isAlert = true;
+        {
+            playerInRange = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject == player)
+        {
+            playerInRange = false;
+        }
     }
 
     public void TakeDamage(int damage)

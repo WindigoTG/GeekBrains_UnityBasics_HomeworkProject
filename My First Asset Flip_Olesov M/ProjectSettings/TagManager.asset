@@ -7,6 +7,11 @@ TagManager:
   - VirtCam
   - Environment
   - Enemy
+  - YellowKey
+  - RedKey
+  - BlueKey
+  - MonsterSpawner
+  - Pickup
   layers:
   - Default
   - TransparentFX
