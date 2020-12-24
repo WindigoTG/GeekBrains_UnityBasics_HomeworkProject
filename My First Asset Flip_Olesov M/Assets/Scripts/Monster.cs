@@ -5,15 +5,19 @@ using UnityEngine.AI;
 
 public class Monster : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField] private float speed = 1.75f;
     [SerializeField] private float chaseSpeed = 5.5f;
-    [SerializeField] private float turnSpeed = 20;
+    //[SerializeField] private float turnSpeed = 20;
 
+    [Header("Stats")]
     [SerializeField] private int hp = 100;
     [SerializeField] private int damage = 15;
 
+    [Header("Navigation")]
+    [SerializeField] private float backToPatrolTime = 5;
     [SerializeField] private Transform[] waypoints;
-    [SerializeField]private NavMeshAgent navMeshAgent;
+    [SerializeField] private NavMeshAgent navMeshAgent;
 
     private float attackCoolDown = 1;
     private float currentCoolDown = 0;
@@ -30,6 +34,7 @@ public class Monster : MonoBehaviour
     bool isAlive = true;
 
     bool playerInRange;
+    bool playerIsSeen;
 
     Animator m_Animator;
 
@@ -58,12 +63,12 @@ public class Monster : MonoBehaviour
             }
             if (!isAlert && playerInRange)
             {
-                Vector3 direction = (player.transform.position + new Vector3(0,2,0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
+                Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0));
 
                 Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
                 RaycastHit raycastHit;
 
-                if (Physics.Raycast(ray, out raycastHit))
+                if (Physics.Raycast(ray, out raycastHit, Mathf.Infinity, -1, QueryTriggerInteraction.Ignore))
                 {
                     if (raycastHit.collider.gameObject == player)
                     {
@@ -73,18 +78,53 @@ public class Monster : MonoBehaviour
             }
             if (isAlert)
             {
-                navMeshAgent.SetDestination(player.transform.position);
+                Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0));
+
+                Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
+                Debug.DrawRay(transform.position + new Vector3(0, 2, 0), direction, Color.green);
+                RaycastHit raycastHit;
+                
+                if (Physics.Raycast(ray, out raycastHit, Mathf.Infinity, -1, QueryTriggerInteraction.Ignore))
+                {
+                    if (raycastHit.collider.gameObject == player)
+                    {
+                        playerIsSeen = true;
+                    }
+                    else
+                    {
+                        playerIsSeen = false;
+                    }
+                    /*Debug.LogWarning(player.transform.position);
+                    Debug.LogWarning(transform.position);
+                    Debug.LogWarning(raycastHit.collider.name);
+                    Debug.LogWarning(ray.origin);
+                    Debug.LogWarning(raycastHit.point);*/
+                    
+                }
+                Debug.Log(playerIsSeen);
+
+                if (playerIsSeen)
+                {
+                    navMeshAgent.SetDestination(player.transform.position);
+                    CancelInvoke("BackToPatrol");
+                }
+
                 if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance && currentCoolDown <= 0)
                 {
                     m_Animator.SetBool("IsWalking", false);
                     m_Animator.SetBool("IsRunning", true);
                     navMeshAgent.speed = chaseSpeed;
                 }
-                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+
+                //Debug.LogWarning(playerInRange);
+                //Debug.LogWarning(currentCoolDown);
+                //Debug.LogWarning(navMeshAgent.remainingDistance);
+
+                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance && playerInRange && playerIsSeen)
                 {
                     m_Animator.SetBool("IsWalking", false);
                     m_Animator.SetBool("IsRunning", false);
-                    navMeshAgent.speed = 0;
+                    //navMeshAgent.speed = 0;
                     if (currentCoolDown <= 0)
                     {
                         m_Animator.SetTrigger("Attack");
@@ -92,6 +132,13 @@ public class Monster : MonoBehaviour
                         currentCoolDown = attackCoolDown;
                     }
                 }
+                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance && !playerIsSeen)
+                {
+                    m_Animator.SetBool("IsWalking", false);
+                    m_Animator.SetBool("IsRunning", false);
+                    Invoke("BackToPatrol", backToPatrolTime);
+                }
+
             }
             if (currentCoolDown > 0)
                 currentCoolDown -= Time.deltaTime;
@@ -100,18 +147,18 @@ public class Monster : MonoBehaviour
                 timeToHit += Time.deltaTime;
                 if (timeToHit >= attackHitIn)
                 {
-                    Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
+                   /* Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
                     Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
                     RaycastHit raycastHit;
 
                     if (Physics.Raycast(ray, out raycastHit))
-                    {
+                    {*/
                         //Если игрок находится на определенном расстоянии от монстра, когда атака считается нанесённой, игрок получает урон
-                        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance && raycastHit.collider.gameObject == player)
+                        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance /*&& raycastHit.collider.gameObject == player*/)
                         {
                             player.GetComponent<Player>().TakeDamage(damage);
                         }
-                    }
+                  //  }
 
                     timeToHit = 0;
                     isAttacking = false;
@@ -120,16 +167,13 @@ public class Monster : MonoBehaviour
         }
         if (!isAlive)
             navMeshAgent.speed = 0;
-        if (!player.activeInHierarchy)
+        if (player.GetComponent<Player>().HPLeft() <= 0)
         {
-            isAlert = false;
-            navMeshAgent.SetDestination(waypoints[m_CurrentWaypointIndex].position);
-            m_Animator.SetBool("IsWalking", true);
-            navMeshAgent.speed = speed;
+            BackToPatrol();
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
         if (other.gameObject == player)
         {
@@ -159,5 +203,13 @@ public class Monster : MonoBehaviour
         isAlive = false;
         m_Animator.SetTrigger("IsDead");
         Destroy(gameObject, 1.5f);
+    }
+
+    private void BackToPatrol()
+    {
+        isAlert = false;
+        navMeshAgent.SetDestination(waypoints[m_CurrentWaypointIndex].position);
+        m_Animator.SetBool("IsWalking", true);
+        navMeshAgent.speed = speed;
     }
 }

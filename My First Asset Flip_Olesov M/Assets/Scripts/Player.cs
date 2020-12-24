@@ -5,14 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour, ITakeDamage
 {
+    [Header("Movement")]
     [SerializeField] private float speed = 3;
     [SerializeField] private float turnSpeed = 20;
 
+    [Header("Shooting")]
     [SerializeField] private GameObject bullet;
     [SerializeField] private Transform bulletSpawnPosition;
     [SerializeField] private float bulletSpeed = 3;
     [SerializeField] private float fireRate = 3;
 
+    [Header("Stats")]
     [SerializeField] private int hp = 100;
     [SerializeField] private int maxHp = 100;
     [SerializeField] private int damage = 25;
@@ -31,6 +34,9 @@ public class Player : MonoBehaviour, ITakeDamage
     Rigidbody m_Rigidbody;
     Vector3 m_Movement;
     Vector3 m_SideMovement;
+
+    bool isJumping = false;
+    bool isTurningAround = false;
 
     void Start()
     {
@@ -56,6 +62,18 @@ public class Player : MonoBehaviour, ITakeDamage
         bool isWalkingRight = false;
         bool isWalkingLeft = false;
 
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        { 
+            m_Rigidbody.AddForce(Vector3.up * 5, ForceMode.Impulse);
+            isJumping = true;
+            Invoke("Landing", 1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R) && !isTurningAround)
+        {
+            StartCoroutine(TurnAround(transform.rotation, Quaternion.Euler(new Vector3(0, transform.rotation.eulerAngles.y + Mathf.Deg2Rad * 180, 0))));
+        }
+
         if (Input.GetAxis("Fire1") > 0)
         {
             isShooting = true;
@@ -70,7 +88,7 @@ public class Player : MonoBehaviour, ITakeDamage
                 fireCoolDown -= Time.deltaTime;
         }
 
-        if (ver !=0)
+        if (ver != 0)
         {
             if (Input.GetAxis("Fire2") > 0 && ver > 0 && !isShooting)
             {
@@ -93,7 +111,7 @@ public class Player : MonoBehaviour, ITakeDamage
                 isWalkingLeft = (stre < 0);
             }
         }
-        if (hor != 0)
+        if (hor != 0 && !isTurningAround)
         {
             transform.eulerAngles = new Vector3(0, transform.eulerAngles.y + hor * turnSpeed * Time.deltaTime, 0);
         }
@@ -165,5 +183,43 @@ public class Player : MonoBehaviour, ITakeDamage
     {
         respawnPosition = chkPoint;
         checkpointSet = true;
+    }
+
+    public int HPLeft()
+    {
+        return hp;
+    }
+
+    void Landing()
+    {
+        isJumping = false;
+    }
+
+    IEnumerator TurnAround(Quaternion initRotation, Quaternion endRotation)
+    {
+        isTurningAround = true;
+
+        var tr = transform;
+        var e = tr.eulerAngles;
+        if (e.y >=0 && e.y < 180)
+            e.y += 180.0f;
+        else if (e.y < 360 && e.y >= 180)
+            e.y -= 180.0f;
+
+        while (true)
+        {
+            Debug.Log(tr.eulerAngles.y - e.y);
+            if (tr.eulerAngles.y - e.y > -1 && tr.eulerAngles.y - e.y < 1)
+            {
+                tr.eulerAngles = e;
+                isTurningAround = false;
+                break;
+            }
+            else
+            {
+                tr.eulerAngles = Vector3.Lerp(tr.eulerAngles, e, turnSpeed / 10 * Time.deltaTime);
+                yield return null;
+            }
+        }
     }
 }

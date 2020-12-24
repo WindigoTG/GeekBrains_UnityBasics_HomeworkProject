@@ -10,11 +10,12 @@ public class Bullet : MonoBehaviour
     {
         this.damage = damage;
         this.speed = speed;
+        
+        GetComponent<Rigidbody>().AddForce(transform.forward * speed, ForceMode.VelocityChange);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-//        if (other.CompareTag("Environment") || other.CompareTag("Enemy"))
         if (!other.isTrigger)
         {
             if (other.CompareTag("Enemy"))
@@ -25,6 +26,6 @@ public class Bullet : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(transform.forward * speed * Time.deltaTime, Space.World);
+       // transform.Translate(transform.forward * speed * Time.deltaTime, Space.World);
     }
 }

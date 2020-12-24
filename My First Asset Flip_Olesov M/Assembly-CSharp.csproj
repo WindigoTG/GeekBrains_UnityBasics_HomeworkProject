@@ -62,18 +62,18 @@
     <Compile Include="Assets\Scripts\CameraSwitching.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Door.cs" />
+    <Compile Include="Assets\Scripts\Checkpoint.cs" />
     <Compile Include="Assets\Scripts\Bullet.cs" />
     <Compile Include="Assets\Scripts\FirstAid.cs" />
     <Compile Include="Assets\Scripts\MonsterSpawner.cs" />
     <Compile Include="Assets\Scripts\Button.cs" />
     <Compile Include="Assets\Scripts\PickUpObject.cs" />
-    <Compile Include="Assets\Scripts\Checkpoint.cs" />
   </ItemGroup>
   <ItemGroup>
-     <None Include="Assets\LogicBlox\Prefabs\ModelsOnly\Free Models only.txt" />
-     <None Include="Assets\LogicBlox\Meshes\MeshReadMe.txt" />
-     <None Include="Assets\_Creepy_Cat\_3D Scifi Kit Starter Kit\_Docs\Doc.txt" />
-     <None Include="Assets\LogicBlox\Prefabs\Masters\MasterReadme.txt" />
+     <None Include="Assets\Unity Store Assets\LogicBlox\Prefabs\ModelsOnly\Free Models only.txt" />
+     <None Include="Assets\Unity Store Assets\LogicBlox\Meshes\MeshReadMe.txt" />
+     <None Include="Assets\Unity Store Assets\_Creepy_Cat\_3D Scifi Kit Starter Kit\_Docs\Doc.txt" />
+     <None Include="Assets\Unity Store Assets\LogicBlox\Prefabs\Masters\MasterReadme.txt" />
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.1.16f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
