@@ -35,8 +35,12 @@ public class Player : MonoBehaviour, ITakeDamage
     Vector3 m_Movement;
     Vector3 m_SideMovement;
 
+    private bool isDead;
+
     bool isJumping = false;
     bool isTurningAround = false;
+
+    bool isGettingPressed = false;
 
     void Start()
     {
@@ -49,98 +53,105 @@ public class Player : MonoBehaviour, ITakeDamage
 
     void Update()
     {
-        var ver = Input.GetAxis("Vertical");
-        var hor = Input.GetAxis("Horizontal");
-        var stre = Input.GetAxis("Streif");
-        m_Movement = transform.forward;
-        m_SideMovement = transform.right;
-
-        bool isWalkingForward = false;
-        bool isRunningForward = false;
-        bool isWalkingBack = false;
-        bool isShooting = false;
-        bool isWalkingRight = false;
-        bool isWalkingLeft = false;
-
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
-        { 
-            m_Rigidbody.AddForce(Vector3.up * 5, ForceMode.Impulse);
-            isJumping = true;
-            Invoke("Landing", 1);
-        }
-
-        if (Input.GetKeyDown(KeyCode.R) && !isTurningAround)
+        if (!isDead)
         {
-            StartCoroutine(TurnAround(transform.rotation, Quaternion.Euler(new Vector3(0, transform.rotation.eulerAngles.y + Mathf.Deg2Rad * 180, 0))));
-        }
+            var ver = Input.GetAxis("Vertical");
+            var hor = Input.GetAxis("Horizontal");
+            var stre = Input.GetAxis("Streif");
+            m_Movement = transform.forward;
+            m_SideMovement = transform.right;
 
-        if (Input.GetAxis("Fire1") > 0)
-        {
-            isShooting = true;
-            if (fireCoolDown <= 0)
+            bool isWalkingForward = false;
+            bool isRunningForward = false;
+            bool isWalkingBack = false;
+            bool isShooting = false;
+            bool isWalkingRight = false;
+            bool isWalkingLeft = false;
+
+            if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
             {
-                m_Animator.SetTrigger("ShotMade");
-                var b = Instantiate(bullet, bulletSpawnPosition.position, bulletSpawnPosition.rotation).GetComponent<Bullet>();
-                b.Init(damage, bulletSpeed);
-                fireCoolDown = fireRate;
+                m_Rigidbody.AddForce(Vector3.up * 5, ForceMode.Impulse);
+                isJumping = true;
+                Invoke("Landing", 1);
             }
-            if (fireCoolDown > 0)
-                fireCoolDown -= Time.deltaTime;
-        }
 
-        if (ver != 0)
-        {
-            if (Input.GetAxis("Fire2") > 0 && ver > 0 && !isShooting)
+            if (Input.GetKeyDown(KeyCode.R) && !isTurningAround)
             {
-                m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed * 2.5f * Time.deltaTime);
-                isRunningForward = true;
+                StartCoroutine(TurnAround(transform.rotation, Quaternion.Euler(new Vector3(0, transform.rotation.eulerAngles.y + Mathf.Deg2Rad * 180, 0))));
             }
-            else
+
+            if (Input.GetAxis("Fire1") > 0)
             {
-                m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed * Time.deltaTime);
-                isWalkingForward = (ver > 0);
-                isWalkingBack = (ver < 0);
+                isShooting = true;
+                if (fireCoolDown <= 0)
+                {
+                    m_Animator.SetTrigger("ShotMade");
+                    var b = Instantiate(bullet, bulletSpawnPosition.position, bulletSpawnPosition.rotation).GetComponent<Bullet>();
+                    b.Init(damage, bulletSpeed);
+                    fireCoolDown = fireRate;
+                }
+                if (fireCoolDown > 0)
+                    fireCoolDown -= Time.deltaTime;
             }
-        }
-        if (stre != 0)
-        {
-            m_Rigidbody.MovePosition(m_Rigidbody.position + m_SideMovement * stre * speed / 2 * Time.deltaTime);
-            if (ver == 0)
+
+            if (ver != 0)
             {
-                isWalkingRight = (stre > 0);
-                isWalkingLeft = (stre < 0);
+                if (Input.GetAxis("Fire3") > 0 && ver > 0 && !isShooting)
+                {
+                    m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed * 2.5f * Time.deltaTime);
+                    isRunningForward = true;
+                }
+                else if (!isGettingPressed)
+                {
+                    m_Rigidbody.MovePosition(m_Rigidbody.position + m_Movement * ver * speed * Time.deltaTime);
+                    isWalkingForward = (ver > 0);
+                    isWalkingBack = (ver < 0);
+                }
             }
+            if (stre != 0)
+            {
+                m_Rigidbody.MovePosition(m_Rigidbody.position + m_SideMovement * stre * speed / 2 * Time.deltaTime);
+                if (ver == 0)
+                {
+                    isWalkingRight = (stre > 0);
+                    isWalkingLeft = (stre < 0);
+                }
+            }
+            if (hor != 0 && !isTurningAround)
+            {
+                transform.eulerAngles = new Vector3(0, transform.eulerAngles.y + hor * turnSpeed * Time.deltaTime, 0);
+            }
+
+            m_Animator.SetBool("IsWalkingForward", isWalkingForward);
+            m_Animator.SetBool("IsRunningForward", isRunningForward);
+            m_Animator.SetBool("IsWalkingBack", isWalkingBack);
+            m_Animator.SetBool("IsShooting", isShooting);
+            m_Animator.SetBool("IsWalkingRight", isWalkingRight);
+            m_Animator.SetBool("IsWalkingLeft", isWalkingLeft);
+
+
         }
-        if (hor != 0 && !isTurningAround)
-        {
-            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y + hor * turnSpeed * Time.deltaTime, 0);
-        }
-
-        m_Animator.SetBool("IsWalkingForward", isWalkingForward);
-        m_Animator.SetBool("IsRunningForward", isRunningForward);
-        m_Animator.SetBool("IsWalkingBack", isWalkingBack);
-        m_Animator.SetBool("IsShooting", isShooting);
-        m_Animator.SetBool("IsWalkingRight", isWalkingRight);
-        m_Animator.SetBool("IsWalkingLeft", isWalkingLeft);
-
-
     }
-
     public void TakeDamage(int damage)
     {
         hp -= damage;
         if (hp <= 0)
-            Death();
+        {
+            m_Animator.SetTrigger("Death");
+            isDead = true;
+            Invoke("Death", 3);
+        }
     }
 
     private void Death()
     {
-        //gameObject.SetActive(false);
         if (checkpointSet)
         {
             m_Rigidbody.position = respawnPosition.position;
             m_Rigidbody.rotation = respawnPosition.rotation;
             hp = maxHp;
+            m_Animator.SetTrigger("Reset");
+            isDead = false;
             foreach (GameObject s in spawns)
                 s.SetActive(true);
             foreach (GameObject p in pickups)
@@ -208,7 +219,6 @@ public class Player : MonoBehaviour, ITakeDamage
 
         while (true)
         {
-            Debug.Log(tr.eulerAngles.y - e.y);
             if (tr.eulerAngles.y - e.y > -1 && tr.eulerAngles.y - e.y < 1)
             {
                 tr.eulerAngles = e;
@@ -221,5 +231,15 @@ public class Player : MonoBehaviour, ITakeDamage
                 yield return null;
             }
         }
+    }
+
+    public void SetPressed(bool pr)
+    {
+        isGettingPressed = pr;
+    }
+
+    public bool CheckPressed()
+    {
+        return isGettingPressed;
     }
 }

@@ -120,7 +120,7 @@ public class Monster : MonoBehaviour
                 //Debug.LogWarning(currentCoolDown);
                 //Debug.LogWarning(navMeshAgent.remainingDistance);
 
-                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance && playerInRange && playerIsSeen)
+                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance && playerInRange && playerIsSeen && raycastHit.collider.gameObject == player && raycastHit.distance <= navMeshAgent.stoppingDistance)
                 {
                     m_Animator.SetBool("IsWalking", false);
                     m_Animator.SetBool("IsRunning", false);
@@ -147,18 +147,13 @@ public class Monster : MonoBehaviour
                 timeToHit += Time.deltaTime;
                 if (timeToHit >= attackHitIn)
                 {
-                   /* Vector3 direction = (player.transform.position + new Vector3(0, 2, 0)) - (transform.position + new Vector3(0, 2, 0)) + Vector3.up;
-                    Ray ray = new Ray(transform.position + new Vector3(0, 2, 0), direction);
-                    RaycastHit raycastHit;
-
-                    if (Physics.Raycast(ray, out raycastHit))
-                    {*/
+                    {
                         //Если игрок находится на определенном расстоянии от монстра, когда атака считается нанесённой, игрок получает урон
-                        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance /*&& raycastHit.collider.gameObject == player*/)
+                        if (navMeshAgent.remainingDistance < navMeshAgent.stoppingDistance)
                         {
                             player.GetComponent<Player>().TakeDamage(damage);
                         }
-                  //  }
+                    }
 
                     timeToHit = 0;
                     isAttacking = false;
